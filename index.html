@@ -1,0 +1,984 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduGen AI</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        /* =====================================================
+           VISUAL AI TUTOR MODAL
+        ===================================================== */
+
+        .visual-tutor-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .visual-tutor-box {
+            width: 900px;
+            max-width: 95%;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: #111827;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+            color: white;
+            position: relative;
+        }
+
+        .visual-tutor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .visual-tutor-header h2 {
+            margin: 0;
+        }
+
+        .close-visual-btn {
+            border: none;
+            background: #ef4444;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .camera-container {
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            max-height: 500px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .camera-status {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+
+        .recording-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: recordingPulse 1s infinite;
+        }
+
+        @keyframes recordingPulse {
+
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+
+        }
+
+        .visual-question-box {
+            margin-top: 20px;
+        }
+
+        .visual-question-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        #visualQuestionInput {
+            width: 100%;
+            min-height: 80px;
+            resize: vertical;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #4b5563;
+            background: #1f2937;
+            color: white;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+        }
+
+        .visual-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .visual-controls button {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: Poppins, sans-serif;
+            font-weight: 500;
+        }
+
+        #startVisualBtn {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        #captureVisualBtn {
+            background: #10b981;
+            color: white;
+        }
+
+        #stopVisualBtn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .visual-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #1f2937;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #visualLoading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #1f2937;
+        }
+
+        #visualTranscript {
+            margin-top: 15px;
+            padding: 12px;
+            background: #1f2937;
+            border-radius: 10px;
+            display: none;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div id="particles-js"></div>
+
+
+    <!-- =====================================================
+         NAVBAR
+    ===================================================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+
+            <div class="logo-icon">📘</div>
+
+            <h2>EduGen AI</h2>
+
+        </div>
+
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="#" class="active-link">Home</a>
+            </li>
+
+            <li>
+                <a href="#features">Features</a>
+            </li>
+
+            <li>
+                <a href="/contact/">Contact</a>
+            </li>
+
+            <li>
+                <a href="/about/">About Us</a>
+            </li>
+
+        </ul>
+
+
+        <div class="nav-buttons">
+
+            <button
+                type="button"
+                class="theme-btn"
+            >
+                ☾
+            </button>
+
+            <button
+                type="button"
+                class="login-btn"
+            >
+                Login
+            </button>
+
+            <button
+                type="button"
+                class="signup-btn"
+            >
+                Sign Up
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <div class="bg-glow"></div>
+
+
+    <!-- =====================================================
+         HERO SECTION
+    ===================================================== -->
+
+    <section class="hero-section">
+
+        <div class="hero-left">
+
+            <h1>
+
+                Learn Anything.<br>
+
+                Generate <span>Everything.</span>
+
+            </h1>
+
+
+            <p>
+
+                EduGen AI generates high-quality content,
+                PPTs, videos, and notes on any topic
+                in seconds using the power of AI.
+
+            </p>
+
+
+            <h3 class="typing-text"></h3>
+
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="topicInput"
+                    placeholder="Enter any topic you want to learn..."
+                >
+
+
+                <!-- CAMERA + MICROPHONE -->
+
+                <button
+                    type="button"
+                    id="visualTutorBtn"
+                    onclick="openVisualTutor()"
+                    title="Open Visual AI Tutor"
+                >
+                    📷🎤
+                </button>
+
+
+
+
+                <a
+    href="/voice-tutor/"
+    class="voice-tutor-home-btn"
+    title="Open Voice AI Tutor"
+>
+    🎙️
+</a>
+
+
+                <button
+                    type="button"
+                    id="generateBtn"
+                >
+                    ✨ Generate
+                </button>
+
+            </div>
+
+
+            <div class="popular-topics">
+
+                <span
+                    onclick="fillTopic('Machine Learning')"
+                >
+                    Machine Learning
+                </span>
+
+                <span
+                    onclick="fillTopic('Blockchain')"
+                >
+                    Blockchain
+                </span>
+
+                <span
+                    onclick="fillTopic('Quantum Computing')"
+                >
+                    Quantum Computing
+                </span>
+
+                <span
+                    onclick="fillTopic('Cyber Security')"
+                >
+                    Cyber Security
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             HERO RIGHT
+        ================================================= -->
+
+        <div class="hero-right">
+
+            <div class="glow-circle"></div>
+
+            <img
+                src="{% static 'images/robot.png' %}"
+                alt="EduGen AI Robot"
+            >
+
+
+            <div class="floating-card card1">
+
+                <h4>AI Content</h4>
+
+                <p>
+                    Smart explanations in seconds
+                </p>
+
+            </div>
+
+
+            <div class="floating-card card2">
+
+                <h4>PPT Generation</h4>
+
+                <p>
+                    Beautiful slides instantly
+                </p>
+
+            </div>
+
+
+            <div class="floating-card card3">
+
+                <h4>Video Generation</h4>
+
+                <p>
+                    Animated videos with voice
+                </p>
+
+            </div>
+
+
+            <div class="floating-card card4">
+
+                <h4>Notes & PDF</h4>
+
+                <p>
+                    Downloadable study material
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FEATURES
+    ===================================================== -->
+
+    <section
+        class="features-section"
+        id="features"
+    >
+
+        <div class="feature-box">
+
+            <div class="feature-icon">⚡</div>
+
+            <div>
+
+                <h3>AI Powered</h3>
+
+                <p>
+                    Advanced models for smarter generation
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="feature-box">
+
+            <div class="feature-icon">🕒</div>
+
+            <div>
+
+                <h3>Save Time</h3>
+
+                <p>
+                    Learn 10x faster with automated content
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="feature-box">
+
+            <div class="feature-icon">✅</div>
+
+            <div>
+
+                <h3>Accurate & Reliable</h3>
+
+                <p>
+                    High-quality researched information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="feature-box">
+
+            <div class="feature-icon">⬇</div>
+
+            <div>
+
+                <h3>Download & Share</h3>
+
+                <p>
+                    PPT, PDF, Video all in one place
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HOW IT WORKS
+    ===================================================== -->
+
+    <section
+        class="work-section"
+        id="works"
+    >
+
+        <div class="work-left">
+
+            <h2>How It Works</h2>
+
+
+            <div class="steps-grid">
+
+                <div class="step-card">
+
+                    <div class="step-icon">✏</div>
+
+                    <h3>Enter Topic</h3>
+
+                    <p>
+                        Type any topic you want to learn.
+                    </p>
+
+                </div>
+
+
+                <div class="step-card">
+
+                    <div class="step-icon">🧠</div>
+
+                    <h3>AI Generates</h3>
+
+                    <p>
+                        AI analyzes and creates content.
+                    </p>
+
+                </div>
+
+
+                <div class="step-card">
+
+                    <div class="step-icon">📽</div>
+
+                    <h3>Choose Output</h3>
+
+                    <p>
+                        Select PPT, Video or Notes.
+                    </p>
+
+                </div>
+
+
+                <div class="step-card">
+
+                    <div class="step-icon">⬇</div>
+
+                    <h3>Download</h3>
+
+                    <p>
+                        Save and share generated files.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="work-right">
+
+            <h2>Generate Your Content</h2>
+
+            <p>
+                Choose what you want to generate
+            </p>
+
+
+            <div class="generate-grid">
+
+                <div class="generate-option active-option">
+                    AI Content
+                </div>
+
+                <div class="generate-option">
+                    PPT Slides
+                </div>
+
+                <div class="generate-option">
+                    Video
+                </div>
+
+                <div class="generate-option">
+                    Notes / PDF
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="generate-now-btn"
+                onclick="document.getElementById('generateBtn').click()"
+            >
+                ✨ Generate Now
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STATS
+    ===================================================== -->
+
+    <section class="stats-section">
+
+        <div class="stats-card">
+
+            <h2>10K+</h2>
+
+            <p>Topics Generated</p>
+
+        </div>
+
+
+        <div class="stats-card">
+
+            <h2>5K+</h2>
+
+            <p>Happy Students</p>
+
+        </div>
+
+
+        <div class="stats-card">
+
+            <h2>25K+</h2>
+
+            <p>Content Created</p>
+
+        </div>
+
+
+        <div class="stats-card">
+
+            <h2>4.9/5</h2>
+
+            <p>User Rating</p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESULT SECTION
+    ===================================================== -->
+
+    <section class="result-section">
+
+        <h2>Generated Result</h2>
+
+
+        <div id="resultBox">
+
+            <p>
+                Your generated content will appear here...
+            </p>
+
+        </div>
+
+
+        <div class="download-buttons">
+
+            <button
+                type="button"
+                id="downloadPdfBtn"
+            >
+                📄 Download PDF
+            </button>
+
+
+            <button
+                type="button"
+                id="downloadPptBtn"
+            >
+                📊 Download PPT
+            </button>
+
+
+            <button
+                type="button"
+                onclick="openYouTube()"
+            >
+                ▶️ Watch on YouTube
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VISUAL AI TUTOR MODAL
+    ===================================================== -->
+
+    <div
+        id="visualTutorModal"
+        class="visual-tutor-modal"
+    >
+
+        <div class="visual-tutor-box">
+
+
+            <!-- HEADER -->
+
+            <div class="visual-tutor-header">
+
+                <h2>
+                    📷🎤 Visual AI Tutor
+                </h2>
+
+
+                <button
+                    type="button"
+                    class="close-visual-btn"
+                    onclick="closeVisualTutor()"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- INSTRUCTIONS -->
+
+            <div class="visual-info">
+
+                <strong>How to use:</strong>
+
+                <br>
+
+                1. Show your textbook, diagram,
+                question or object to the camera.
+
+                <br>
+
+                2. Speak your question using
+                the microphone.
+
+                <br>
+
+                3. Click
+                <strong>Capture & Ask AI</strong>.
+
+                <br>
+
+                4. EduGen AI will analyze the image
+                and answer your question.
+
+            </div>
+
+
+            <!-- CAMERA -->
+
+            <div class="camera-container">
+
+                <video
+                    id="cameraVideo"
+                    autoplay
+                    playsinline
+                    muted
+                ></video>
+
+            </div>
+
+
+            <!-- CAMERA STATUS -->
+
+            <div
+                id="cameraStatus"
+                class="camera-status"
+            >
+                Camera and microphone are starting...
+            </div>
+
+
+            <!-- QUESTION -->
+
+            <div class="visual-question-box">
+
+                <label for="visualQuestionInput">
+
+                    Optional: Type your question
+
+                </label>
+
+
+                <textarea
+                    id="visualQuestionInput"
+                    placeholder="You can type your question here if you don't want to use voice..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- CONTROLS -->
+
+            <div class="visual-controls">
+
+                <button
+                    type="button"
+                    id="startVisualBtn"
+                    onclick="startVisualRecording()"
+                >
+                    🎤 Start Speaking
+                </button>
+
+
+                <button
+                    type="button"
+                    id="stopVisualBtn"
+                    onclick="stopVisualRecording()"
+                >
+                    ⏹ Stop Speaking
+                </button>
+
+
+                <button
+                    type="button"
+                    id="captureVisualBtn"
+                    onclick="captureAndAskVisualAI()"
+                >
+                    📷 Capture & Ask AI
+                </button>
+
+            </div>
+
+
+            <!-- TRANSCRIPT -->
+
+            <div id="visualTranscript">
+
+                <strong>
+                    🎤 Your Question:
+                </strong>
+
+                <p id="visualTranscriptText"></p>
+
+            </div>
+
+
+            <!-- LOADING -->
+
+            <div id="visualLoading">
+
+                🧠 EduGen AI is analyzing your image
+                and question...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ===================================================== -->
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+
+    <script>
+
+        /* =================================================
+           PARTICLES
+        ================================================= */
+
+        if (typeof particlesJS !== "undefined") {
+
+            particlesJS("particles-js", {
+
+                particles: {
+
+                    number: {
+                        value: 80
+                    },
+
+                    color: {
+                        value: "#8b5cf6"
+                    },
+
+                    shape: {
+                        type: "circle"
+                    },
+
+                    opacity: {
+                        value: 0.5
+                    },
+
+                    size: {
+                        value: 3
+                    },
+
+                    move: {
+                        enable: true,
+                        speed: 2
+                    }
+
+                }
+
+            });
+
+        }
+
+
+        /* =================================================
+           YOUTUBE SEARCH
+        ================================================= */
+
+        function openYouTube() {
+
+            if (
+                typeof currentTopic === "undefined" ||
+                currentTopic === ""
+            ) {
+
+                alert("Generate content first.");
+
+                return;
+
+            }
+
+
+            const url =
+                "https://www.youtube.com/results?search_query=" +
+                encodeURIComponent(currentTopic);
+
+
+            window.open(
+                url,
+                "_blank"
+            );
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

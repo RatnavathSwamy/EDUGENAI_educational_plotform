@@ -1,0 +1,615 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>EduGen AI - Voice Tutor</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            font-family: Poppins, Arial, sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a,
+                    #111827,
+                    #1e1b4b
+                );
+
+            color: white;
+
+            min-height: 100vh;
+
+        }
+
+
+        .voice-page {
+
+            width: 100%;
+
+            min-height: 100vh;
+
+            padding: 30px;
+
+        }
+
+
+        .voice-header {
+
+            max-width: 1100px;
+
+            margin: auto;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .voice-header h1 {
+
+            margin: 0;
+
+            font-size: 30px;
+
+        }
+
+
+        .back-btn {
+
+            text-decoration: none;
+
+            color: white;
+
+            background: #374151;
+
+            padding: 10px 18px;
+
+            border-radius: 10px;
+
+        }
+
+
+        .voice-container {
+
+            max-width: 1100px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                350px
+                1fr;
+
+            gap: 25px;
+
+        }
+
+
+        .voice-control-card {
+
+            background: rgba(
+                255,
+                255,
+                255,
+                0.06
+            );
+
+            border: 1px solid rgba(
+                255,
+                255,
+                255,
+                0.1
+            );
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            text-align: center;
+
+        }
+
+
+        .mic-circle {
+
+            width: 150px;
+
+            height: 150px;
+
+            border-radius: 50%;
+
+            margin: 20px auto;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-size: 60px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7c3aed,
+                    #2563eb
+                );
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            box-shadow:
+                0 0 30px
+                rgba(
+                    124,
+                    58,
+                    237,
+                    0.5
+                );
+
+        }
+
+
+        .mic-circle:hover {
+
+            transform: scale(1.05);
+
+        }
+
+
+        .mic-circle.listening {
+
+            animation:
+                micPulse 1.2s infinite;
+
+        }
+
+
+        @keyframes micPulse {
+
+            0% {
+
+                transform: scale(1);
+
+            }
+
+            50% {
+
+                transform: scale(1.12);
+
+            }
+
+            100% {
+
+                transform: scale(1);
+
+            }
+
+        }
+
+
+        .voice-status {
+
+            min-height: 45px;
+
+            margin: 15px 0;
+
+            color: #d1d5db;
+
+        }
+
+
+        .voice-buttons {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+        }
+
+
+        .voice-buttons button {
+
+            border: none;
+
+            padding: 13px;
+
+            border-radius: 10px;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+        }
+
+
+        #startVoiceBtn {
+
+            background: #8b5cf6;
+
+            color: white;
+
+        }
+
+
+        #stopVoiceBtn {
+
+            background: #ef4444;
+
+            color: white;
+
+        }
+
+
+        #clearVoiceBtn {
+
+            background: #374151;
+
+            color: white;
+
+        }
+
+
+        .conversation-card {
+
+            background: rgba(
+                255,
+                255,
+                255,
+                0.06
+            );
+
+            border: 1px solid rgba(
+                255,
+                255,
+                255,
+                0.1
+            );
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            min-height: 600px;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .conversation-card h2 {
+
+            margin-top: 0;
+
+        }
+
+
+        #conversationArea {
+
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 10px;
+
+            min-height: 400px;
+
+        }
+
+
+        .message {
+
+            margin-bottom: 20px;
+
+            padding: 15px;
+
+            border-radius: 15px;
+
+            line-height: 1.7;
+
+        }
+
+
+        .user-message {
+
+            background: #312e81;
+
+            margin-left: 60px;
+
+        }
+
+
+        .ai-message {
+
+            background: #1f2937;
+
+            margin-right: 60px;
+
+        }
+
+
+        .message-label {
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .manual-input {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 15px;
+
+        }
+
+
+        #voiceTextInput {
+
+            flex: 1;
+
+            padding: 13px;
+
+            border-radius: 10px;
+
+            border: 1px solid #4b5563;
+
+            background: #111827;
+
+            color: white;
+
+            outline: none;
+
+        }
+
+
+        #sendVoiceTextBtn {
+
+            border: none;
+
+            padding: 13px 20px;
+
+            border-radius: 10px;
+
+            background: #10b981;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+        }
+
+
+        .thinking {
+
+            opacity: 0.7;
+
+            font-style: italic;
+
+        }
+
+
+        @media(max-width: 800px) {
+
+            .voice-container {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .user-message {
+
+                margin-left: 10px;
+
+            }
+
+            .ai-message {
+
+                margin-right: 10px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="voice-page">
+
+
+    <div class="voice-header">
+
+        <h1>
+            🎙️ EduGen AI Voice Tutor
+        </h1>
+
+        <a
+            href="/"
+            class="back-btn"
+        >
+            ← Back Home
+        </a>
+
+    </div>
+
+
+    <div class="voice-container">
+
+
+        <!-- ==================================================
+             VOICE CONTROL
+        ================================================== -->
+
+        <div class="voice-control-card">
+
+            <h2>
+                Talk to EduGen AI
+            </h2>
+
+            <p>
+                Ask your question using your voice.
+            </p>
+
+
+            <div
+                id="micCircle"
+                class="mic-circle"
+                onclick="toggleVoiceRecognition()"
+            >
+                🎙️
+            </div>
+
+
+            <div
+                id="voiceStatus"
+                class="voice-status"
+            >
+                Click the microphone and start speaking.
+            </div>
+
+
+            <div class="voice-buttons">
+
+                <button
+                    id="startVoiceBtn"
+                    onclick="startVoiceRecognition()"
+                >
+                    🎙️ Start Speaking
+                </button>
+
+
+                <button
+                    id="stopVoiceBtn"
+                    onclick="stopVoiceRecognition()"
+                >
+                    ⏹ Stop Speaking
+                </button>
+
+
+                <button
+                    id="clearVoiceBtn"
+                    onclick="clearConversation()"
+                >
+                    🗑 Clear Conversation
+                </button>
+
+            </div>
+
+
+            <p style="font-size:13px;margin-top:20px;color:#9ca3af;">
+
+                Voice recognition is handled by your browser.
+                Please allow microphone permission.
+
+            </p>
+
+        </div>
+
+
+        <!-- ==================================================
+             CONVERSATION
+        ================================================== -->
+
+        <div class="conversation-card">
+
+            <h2>
+                💬 Conversation
+            </h2>
+
+
+            <div id="conversationArea">
+
+                <div class="ai-message message">
+
+                    <div class="message-label">
+                        🤖 EduGen AI
+                    </div>
+
+                    Hello! I am your AI Tutor.
+                    Ask me anything and I will help you learn.
+
+                </div>
+
+            </div>
+
+
+            <div class="manual-input">
+
+                <input
+                    type="text"
+                    id="voiceTextInput"
+                    placeholder="Or type your question..."
+                    onkeydown="handleVoiceInputKey(event)"
+                >
+
+
+                <button
+                    id="sendVoiceTextBtn"
+                    onclick="sendTypedVoiceQuestion()"
+                >
+                    Send
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="{% static 'js/voice_tutor.js' %}"></script>
+
+
+</body>
+
+</html>
